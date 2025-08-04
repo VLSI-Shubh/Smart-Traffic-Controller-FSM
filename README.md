@@ -92,7 +92,7 @@ The FSM was verified using a testbench and simulated using `vvp`. Below is a sum
 
 Below is a snapshot of the waveform from the simulation highlighting state transitions and output signal changes (Red, Green, Yellow):
 
-![Waveform Output](https://github.com/your-repo/images/traffic_waveform.png)
+![Waveform Output](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/d35985fc8b95f99b26d0dd68ed80e3b62dd28798/images/Output.png)
 
 
 ### 🔍 Key Observations from Output Log
@@ -129,7 +129,8 @@ This schematic was generated using tools like **Vivado** and **EDA Playground**,
 - Combinational and sequential blocks used in synthesis
 
 > 📄 View the full schematic in:  
-[`circuits/fsm_schematic_vivado.pdf`](./circuits/fsm_schematic_vivado.pdf)
+[`circuits/schematic.pdf`](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/Circuits/schematic.pdf)
+[`circuits/fsm_schematic_vivado.pdf`](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/images/schematic.jpg)
 
 
 # 💻 Project Files
