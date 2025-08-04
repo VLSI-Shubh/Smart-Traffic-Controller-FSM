@@ -1,183 +1,178 @@
-
 # 🚦 FSM Traffic Controller – Sensor-Based Smart Control
 
-This project implements a **sensor-aware traffic light controller** using a **Finite State Machine (FSM)** in Verilog. The design is enhanced to dynamically react to real-time traffic on **4 roads (R1–R4)** and determine optimal green light allocation between **roads 1 & 3** and **roads 2 & 4** based on vehicle presence.
+This project implements a **sensor-aware traffic light controller** using a **Finite State Machine (FSM)** in Verilog. The design dynamically reacts to real-time traffic on **4 roads (R1–R4)** and determines optimal green light allocation between **roads 1 & 3** and **roads 2 & 4** based on vehicle presence.
+
+---
 
 ## 🧠 Project Overview
 
-This FSM monitors a 4-bit `Traffic` input representing traffic density (binary flags) on four roads:
-- `Traffic[0]` – Road 1
-- `Traffic[1]` – Road 2
-- `Traffic[2]` – Road 3
+The FSM monitors a 4-bit `Traffic` input representing traffic density on four roads:
+- `Traffic[0]` – Road 1  
+- `Traffic[1]` – Road 2  
+- `Traffic[2]` – Road 3  
 - `Traffic[3]` – Road 4
 
 The controller groups the roads as:
-- Group 1–3 (R1 and R3)
-- Group 2–4 (R2 and R4)
+- **Group 1–3** (R1 and R3)
+- **Group 2–4** (R2 and R4)
 
-Whenever traffic is detected on a group, it activates **Green** lights for that group, while the other group is held at **Red**. Transition between Green → Yellow → Red is time-controlled using internal countdown logic.
+When traffic is detected in a group, it activates **Green** lights for that group. The other group is held at **Red**. Transitions between Green → Yellow → Red are time-controlled using an internal countdown.
+
+---
 
 ## 🚦 Intersection Layout
 
-Below is a schematic representation of the 4-road intersection modeled in this project. Roads 1 and 3 are grouped together, as are Roads 2 and 4, to coordinate green light timing.
+A schematic representation of the 4-road intersection modeled in this project. Roads 1 & 3 and Roads 2 & 4 are grouped together for synchronized signaling.
 
 ![4-Road Intersection Diagram](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/38e5d1ad5d19e66bc9a33ec4f339ce91196e5ccc/images/Intersection.png)
 
+---
 
 ## 🔷 FSM State Diagram
 
 ![FSM Diagram](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/32de1aec6563966cb09b189a13eb93384b69c19a/images/Traffic%20Controller%20FSM.png)
 
+---
+
 ## 🔁 FSM Logic & Transitions
 
-The traffic controller FSM operates in **five states**, reacting to live sensor inputs and sequencing through light phases using internal timers. Here’s a detailed breakdown:
+The traffic controller FSM operates in **five states**, reacting to sensor inputs and sequencing light phases using timers.
 
 ### ➤ State Overview
 
-- `s_idle`: Default state where all traffic lights are Red. The controller monitors the `Traffic` input.
-- `s_13gg`: If traffic is detected on Road 1 or 3, FSM enters this state, turning Green on R1 and R3.
-- `s_13yy`: Yellow phase for R1 and R3 before returning to idle.
-- `s_24gg`: When traffic is detected on Roads 2 or 4 (and no traffic on Roads 1 or 3 after the s_idle state), the FSM transitions to this state, turning the green light on Roads 2 and 4.
-- `s_24yy`: Yellow phase for R2 and R4 before returning to idle.
+- `s_idle`: All lights Red. FSM waits for traffic input.
+- `s_13gg`: Green for R1 & R3.
+- `s_13yy`: Yellow for R1 & R3.
+- `s_24gg`: Green for R2 & R4.
+- `s_24yy`: Yellow for R2 & R4.
 
 ### ➤ Priority-Based Selection
 
-- When `Traffic != 0000`, the FSM prioritizes:
-  - Group R1 & R3 if either `Traffic[0]` or `Traffic[2]` is high
-  - Else, Group R2 & R4 if either `Traffic[1]` or `Traffic[3]` is high
-- If both groups have traffic, **R1/R3 are preferred** by design.
+- If traffic detected on R1 or R3 → FSM prioritizes R1 & R3.
+- Else, if traffic on R2 or R4 → FSM switches to R2 & R4.
+- **R1/R3 group has higher priority** by design when both are active.
 
 ### ➤ Timer-Based Phase Transitions
 
-- Green and Yellow lights are **governed by counters**.
-- A signal `done` goes high when the timer hits zero, prompting state transition.
-- This ensures each Green/Yellow phase is held for a precise number of cycles.
-
-### ➤ FSM Transition Summary
-
-| Current State | Condition              | Next State |
-|---------------|------------------------|------------|
-| `s_idle`      | `Traffic[0] or Traffic[2]` | `s_13gg`   |
-| `s_idle`      | `Traffic[1] or Traffic[3]` | `s_24gg`   |
-| `s_13gg`      | `done == 1`             | `s_13yy`   |
-| `s_13yy`      | `done == 1`             | `s_idle`   |
-| `s_24gg`      | `done == 1`             | `s_24yy`   |
-| `s_24yy`      | `done == 1`             | `s_idle`   |
-
-This FSM is designed to be scalable and deterministic, making it well-suited for adaptive traffic signal systems in smart city applications. (*Future enhancements will include pedestrian control features to improve safety and usability.*)
-
-
-## ⏱️ Timers & Control
-
-Timers are implemented internally using a counter:
-
+Each Green/Yellow state sets a timer:
 ```verilog
 parameter GREEN_TIME  = 16'd55;
 parameter YELLOW_TIME = 16'd10;
 ```
+FSM uses a countdown mechanism with a `done` flag to trigger transitions.
 
-Each Green/Yellow state initializes the `max_timer`, and decrements it every clock. Once it reaches zero, the `done` signal triggers the state change.
+### ➤ FSM Transition Summary
 
-## 🎯 Output Encoding
+| Current State | Condition                  | Next State |
+|---------------|----------------------------|------------|
+| `s_idle`      | `Traffic[0] or Traffic[2]` | `s_13gg`   |
+| `s_idle`      | `Traffic[1] or Traffic[3]` | `s_24gg`   |
+| `s_13gg`      | `done == 1`                | `s_13yy`   |
+| `s_13yy`      | `done == 1`                | `s_idle`   |
+| `s_24gg`      | `done == 1`                | `s_24yy`   |
+| `s_24yy`      | `done == 1`                | `s_idle`   |
 
-| Output Signals | Meaning                    |
-|----------------|----------------------------|
-| `Red[3:0]`     | Red lights for R1–R4       |
-| `Green[3:0]`   | Green lights for R1–R4     |
-| `Yellow[3:0]`  | Yellow lights for R1–R4    |
-
-Example:
-- In `s_13gg`: R1 and R3 are Green, R2 and R4 are Red.
-- In `s_24yy`: R2 and R4 are Yellow, R1 and R3 are Red.
-
-
-## 🖥️ Simulation Output & Timing Behavior
-
-The FSM was verified using a testbench and simulated using `vvp`. Below is a summary of key behaviors observed from the simulation:
-
-### 📷 Waveform Output
-
-Below is a snapshot of the waveform from the simulation highlighting state transitions and output signal changes (Red, Green, Yellow):
-
-![Waveform Output](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/d35985fc8b95f99b26d0dd68ed80e3b62dd28798/images/Output.png)
-
-
-### 🔍 Key Observations from Output Log
-
-- **Initial State (`s_idle`)**: From 0 to 25000 ns, no traffic is detected (`T = 0000`), and all lights are Red.
-- **Traffic Detected on Road 1 (`T = 1000`)**: At 25000 ns, the FSM begins evaluation and transitions to `s_24gg` (State 3), where Roads 2 & 4 receive Green lights.
-- **Green Phase**: The FSM stays in `s_24gg` for 55 clock cycles, decrementing the internal timer from 55 down to 0.
-- **Transition to Yellow (`s_24yy`)**: Once timer hits zero (at 595000 ns), FSM enters `s_24yy` and Yellow lights for Roads 2 & 4 are activated.
-- **Cycle Completion**: After Yellow phase, FSM returns to `s_idle` and re-evaluates traffic. This dynamic continues for every new traffic input pattern.
-
-
-### 📈 Representative Simulation States
-
-| Time (ns) | T (Traffic) | State | R | G | Y | Timer | Done |
-|-----------|-------------|-------|---|---|---|--------|------|
-| 25000     | 1000        | s_idle → s_24gg | 0101 | 1010 | 0000 | 0 → 55 | 0 |
-| 595000    | 1000        | s_24gg → s_24yy | 0101 | 0000 | 1010 | 0 | 1 |
-| 615000    | 1000        | s_24yy → s_idle | 1111 | 0000 | 0000 | — | 0 |
-| 625000    | 0100        | s_idle → s_24gg | 0101 | 1010 | 0000 | 55 | 0 |
-| 1195000   | 1010        | s_idle → s_13gg | 1010 | 0101 | 0000 | 55 | 0 |
-
-**Note:** State IDs were decoded based on FSM encoding. `s_idle = 0`, `s_13gg = 1`, `s_13yy = 2`, `s_24gg = 3`, `s_24yy = 4`.
+> ✅ This FSM is **scalable** and **deterministic**, making it suitable for real-time traffic management in smart cities.  
+> Future work includes support for **pedestrian signals**.
 
 ---
 
-# 📘 FSM Design (Schematic View)
+## 🎯 Output Encoding
 
-To provide a hardware-level view of the FSM, the schematic below represents the synthesized structure of the controller.
+| Signal        | Description              |
+|---------------|--------------------------|
+| `Red[3:0]`     | Red lights for R1–R4     |
+| `Green[3:0]`   | Green lights for R1–R4   |
+| `Yellow[3:0]`  | Yellow lights for R1–R4  |
 
-This schematic was generated using tools like **Vivado** and **EDA Playground**, and offers insight into:
+Examples:
+- In `s_13gg`: R1 & R3 = Green, R2 & R4 = Red  
+- In `s_24yy`: R2 & R4 = Yellow, R1 & R3 = Red
 
-- Register and flip-flop arrangement
-- State transition logic
-- Combinational and sequential blocks used in synthesis
+---
 
-> 📄 View the full schematic in:  
-[`circuits/schematic.pdf`](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/Circuits/schematic.pdf)
+## 🖥️ Simulation Output & Timing Behavior
 
-![Schematic](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/images/schematic.jpg)
+Simulation was performed using `vvp` and GTKWave.
 
+### 📷 Waveform Snapshot
 
-# 💻 Project Files
+![Waveform Output](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/d35985fc8b95f99b26d0dd68ed80e3b62dd28798/images/Output.png)
 
-| File | Description |
-|------|-------------|
-| `traffic_controller.v`     | Main FSM Verilog code |
-| `traffic_controller_tb.v`  | Testbench for verification |
-| `*.vcd`                    | Waveform dumps for simulation |
-| `*.vvp`                    | Compiled simulation output (for use with Icarus Verilog) |
-| `images/`                  | FSM diagrams and waveform screenshots |
-| `circuits/`                | Synthesized FSM circuits (PDFs of RTL schematics) |
+### 🔍 Log Observations
 
+- **Initial (`s_idle`)**: No traffic detected; all Red.
+- **Traffic on R1** → FSM enters `s_24gg` (Green for R2/R4)
+- **Timer hits 0** → FSM switches to `s_24yy`, then back to idle.
+
+### 📈 Sample Simulation Log
+
+| Time (ns) | T (Traffic) | State           | R     | G     | Y     | Timer | Done |
+|-----------|-------------|------------------|-------|-------|-------|--------|------|
+| 25000     | 1000        | `s_idle → s_24gg` | 0101 | 1010 | 0000 | 55 → 0 | 0    |
+| 595000    | 1000        | `s_24gg → s_24yy` | 0101 | 0000 | 1010 | 0      | 1    |
+| 615000    | 1000        | `s_24yy → s_idle` | 1111 | 0000 | 0000 | —      | 0    |
+| 625000    | 0100        | `s_idle → s_24gg` | 0101 | 1010 | 0000 | 55     | 0    |
+| 1195000   | 1010        | `s_idle → s_13gg` | 1010 | 0101 | 0000 | 55     | 0    |
+
+> ⚠️ FSM state IDs (for simulation):  
+`0 = s_idle`, `1 = s_13gg`, `2 = s_13yy`, `3 = s_24gg`, `4 = s_24yy`
+
+---
+
+## 📘 FSM Design (Schematic View)
+
+The schematic below provides a hardware-level view of the FSM. It was generated via **Vivado** and **EDA Playground** and highlights:
+
+- State transition logic  
+- Register/flip-flop placement  
+- Combinational & sequential logic blocks
+
+📄 [View Full PDF Schematic](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/Circuits/schematic.pdf)
+
+![FSM Schematic](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/images/schematic.jpg)
+
+---
+
+## 💻 Project Files
+
+| File                   | Description                              |
+|------------------------|------------------------------------------|
+| `traffic_controller.v` | Main FSM Verilog code                    |
+| `traffic_controller_tb.v` | Testbench for verification           |
+| `*.vcd`                | Waveform dumps for simulation            |
+| `*.vvp`                | Compiled output (Icarus Verilog)         |
+| `images/`              | FSM diagrams and waveform screenshots    |
+| `circuits/`            | FSM schematic files (PDF/PNG)            |
+
+---
 
 ## ✅ Conclusion
 
-This project demonstrates a **realistic traffic control FSM** that dynamically responds to real-time traffic conditions, improving flow and reducing idle time. With modular timing control, sensor-based input logic, and clear visual outputs, it serves as a foundational design in **digital design**, **RTL FSM modeling**, and **hardware-aware traffic systems**.
+This project demonstrates a practical, sensor-aware traffic control FSM that dynamically adjusts signals to reduce idle time and congestion. It’s a solid example of **RTL design**, **FSM modeling**, and **real-time digital logic** applications.
+
+---
 
 ## 📎 Future Enhancements
 
-- Add pedestrian crossing logic and timers
-- Implement traffic priority (e.g., emergency vehicle override)
-- Integrate countdown display on each signal
-- Simulate with different traffic patterns
+- Add pedestrian signal timing  
+- Emergency vehicle priority override  
+- Countdown timer display on signals  
+- Extended simulation patterns (e.g., random traffic bursts)
+
+---
+
 ## 🛠️ Tools Used
 
-This project was developed, tested, and visualized using the following tools:
+| Tool               | Purpose                                           |
+|--------------------|---------------------------------------------------|
+| **Icarus Verilog** | Compile/simulate Verilog code                    |
+| **GTKWave**        | View simulation waveform dumps (`.vcd` files)    |
+| **EDA Playground** | Online Verilog editor and schematic viewer       |
+| **Vivado**         | RTL synthesis, schematic generation              |
 
-| Tool            | Purpose                                           |
-|------------------|---------------------------------------------------|
-| **Icarus Verilog** (`iverilog`) | Compilation and simulation of Verilog code |
-| **GTKWave**      | Viewing waveform outputs (`.vcd` files)          |
-| **EDA Playground** | Online Verilog editor and schematic viewer for quick prototyping |
-| **Vivado**       | RTL synthesis, schematic generation, and design analysis |
-
+---
 
 ## 📝 License
 
 This project is licensed under the terms of the [MIT License](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/3406542ecb3136956d5a9926b9e3c724a3b2199b/License.txt).
-
-.
-
