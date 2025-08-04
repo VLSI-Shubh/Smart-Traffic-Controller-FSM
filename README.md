@@ -19,7 +19,7 @@ Whenever traffic is detected on a group, it activates **Green** lights for that 
 
 ## 🔷 FSM State Diagram
 
-![FSM Diagram]([https://github.com/your-repo/images/fsm_state_diagram.png](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/32de1aec6563966cb09b189a13eb93384b69c19a/images/Traffic%20Controller%20FSM.png))
+![FSM Diagram](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/32de1aec6563966cb09b189a13eb93384b69c19a/images/Traffic%20Controller%20FSM.png)
 
 ## 🔁 FSM Logic & Transitions
 
