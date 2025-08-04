@@ -118,13 +118,19 @@ Below is a snapshot of the waveform from the simulation highlighting state trans
 
 ---
 
-This simulation validates the FSM’s correct behavior across input transitions, state cycles, and timer countdowns. It highlights the FSM’s **reactivity to live traffic**, **deterministic light sequencing**, and **stable output encoding**
+# 📘 FSM Design (Schematic View)
 
-## 📘 FSM Design (Visual Aid)
+To provide a hardware-level view of the FSM, the schematic below represents the synthesized structure of the controller.
 
-> *(Insert schematic/circuit diagram images or waveform screenshots here)*
+This schematic was generated using tools like **Vivado** and **EDA Playground**, and offers insight into:
 
-You can add synthesized circuit diagrams (PDFs or PNGs) here to illustrate the FSM block structure or RTL netlist visualization.
+- Register and flip-flop arrangement
+- State transition logic
+- Combinational and sequential blocks used in synthesis
+
+> 📄 View the full schematic in:  
+[`circuits/fsm_schematic_vivado.pdf`](./circuits/fsm_schematic_vivado.pdf)
+
 
 # 💻 Project Files
 
