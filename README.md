@@ -170,7 +170,7 @@ This project was developed, tested, and visualized using the following tools:
 
 ## 📝 License
 
-This project is licensed under the terms of the [MIT License](./LICENSE.txt).
+This project is licensed under the terms of the [MIT License](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/3406542ecb3136956d5a9926b9e3c724a3b2199b/License.txt).
 
 .
 
