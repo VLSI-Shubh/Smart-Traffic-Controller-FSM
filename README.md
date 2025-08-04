@@ -17,6 +17,13 @@ The controller groups the roads as:
 
 Whenever traffic is detected on a group, it activates **Green** lights for that group, while the other group is held at **Red**. Transition between Green → Yellow → Red is time-controlled using internal countdown logic.
 
+### 🚦 Intersection Layout
+
+Below is a schematic representation of the 4-road intersection modeled in this project. Roads 1 and 3 are grouped together, as are Roads 2 and 4, to coordinate green light timing.
+
+![4-Road Intersection Diagram](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/38e5d1ad5d19e66bc9a33ec4f339ce91196e5ccc/images/Intersection.png)
+
+
 ## 🔷 FSM State Diagram
 
 ![FSM Diagram](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/32de1aec6563966cb09b189a13eb93384b69c19a/images/Traffic%20Controller%20FSM.png)
