@@ -130,7 +130,8 @@ This schematic was generated using tools like **Vivado** and **EDA Playground**,
 
 > 📄 View the full schematic in:  
 [`circuits/schematic.pdf`](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/Circuits/schematic.pdf)
-[`circuits/fsm_schematic_vivado.pdf`](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/images/schematic.jpg)
+
+![Schematic](https://github.com/VLSI-Shubh/Traffic-Controller-using-FSM/blob/561920e7239f6b68a78176154796e8364038c277/images/schematic.jpg)
 
 
 # 💻 Project Files
